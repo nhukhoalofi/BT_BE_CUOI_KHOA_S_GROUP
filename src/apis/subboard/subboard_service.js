@@ -1,5 +1,12 @@
 import SubboardModel from "../../model/subboard.model.js";
-
+import {v2 as cloudinary} from 'cloudinary'
+import fs from 'fs'
+import path from 'path' 
+cloudinary.config({
+    cloud_name:'dvfhyxnke',
+    api_key:'173672421639628',
+    api_secret:'PHCZEt9JSNrAapRUTwgd5JL89Mg'
+})
 class SubboardService{
     async createsubboard(subboarddata){
         try {
@@ -93,17 +100,17 @@ class SubboardService{
         throw new Error('Error adding task: ' + error.message);
     }
     }
-    async removeTask(taskid){
+    async removeTask(subboardId, taskId) {
         try {
-        const subboard = await SubboardModel.findByIdAndUpdate(
-            subboardId,
-            { $pull: { tasks: taskId } }, // Xóa taskId khỏi mảng tasks
-            { new: true }
-        );
-        return subboard;
-    } catch (error) {
-        throw new Error('Error removing task: ' + error.message);
-    }
+            const subboard = await SubboardModel.findByIdAndUpdate(
+                subboardId,
+                { $pull: { tasks: taskId } },
+                { new: true }
+            );
+            return subboard;
+        } catch (error) {
+            throw new Error('Error removing task: ' + error.message);
+        }
     }
     async upadatedeadline(subboardId, deadline) {
     try {
@@ -118,7 +125,7 @@ class SubboardService{
     }
 }
 
-async updatepriority(subboardId, priority) {
+    async updatepriority(subboardId, priority) {
     try {
         const subboard = await SubboardModel.findByIdAndUpdate(
             subboardId,
@@ -129,6 +136,30 @@ async updatepriority(subboardId, priority) {
     } catch (error) {
         throw new Error('Error updating priority: ' + error.message);
     }
-}
+    }
+    async uploadimage(subboardId){
+        try{
+            const folderPath='./img';
+            const files =fs.readdirSync(folderPath).filter(file=>
+                file.endsWith('.png')||file.endsWith('.jpg')||file.endsWith('.jpeg')
+            )
+            for (const file of files){
+                const filePath=path.join(folderPath,filePath);
+                const uploadResult=await cloudinary.uploader.upload(filePath,{
+                   folder: 'uploaded_images',
+                resource_type: 'image'
+            });
+
+            const avatarUrl = uploadResult.secure_url;
+            await SubboardModel.findByIdAndUpdate(subboardId, { avatarUrl });
+            console.log(`✅ Upload thành công: ${file}`);
+        }
+
+        return { message: 'Upload completed!' };
+        }
+        catch (error) {
+        throw new Error('Error uploading images: ' + error.message);
+        }
+    }   
 }
 export default SubboardService;

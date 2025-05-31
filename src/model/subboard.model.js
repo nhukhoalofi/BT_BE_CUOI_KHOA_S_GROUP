@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 
 const subboardSchema = new mongoose.Schema({
   name: { type: String, required: true },
+  background:{type:String},
   taskParent: { type: mongoose.Schema.Types.ObjectId, ref: 'Task' },
   description: { type: String },        
     status: {
