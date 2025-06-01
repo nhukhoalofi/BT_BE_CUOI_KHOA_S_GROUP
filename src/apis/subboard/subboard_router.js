@@ -1,7 +1,8 @@
 import express from 'express';
 import SubboardController from '../../apis/subboard/subboard_controller.js';
 import checkrole from '../../middleware/checkmiddleware.js';
-
+import multer from 'multer';
+const upload = multer({ dest: 'uploads/' })
 const Subboardrouter = express.Router();
 
 Subboardrouter.post('/tasks/:taskId/subboards', checkrole(['admin']), SubboardController.createsubboard);
@@ -13,5 +14,4 @@ Subboardrouter.delete('/subboards/:id', checkrole(['admin', 'member']), Subboard
 // Subboardrouter.delete('/subboard/:id/members/:memberId', checkrole(['admin']), SubboardController.removemember);
 // Subboardrouter.post('/subboard/:id/tasks', checkrole(['admin', 'member']), SubboardController.addTask);
 // Subboardrouter.delete('/subboard/:id/tasks/:taskId', checkrole(['admin', 'member']), SubboardController.removeTask);
-Subboardrouter.post('/subboards/:id/upload-bg', SubboardController.uploadimage);
-export default Subboardrouter;
+Subboardrouter.post('/subboards/:id/upload-bg', upload.single('image'), SubboardController.uploadimage);export default Subboardrouter;

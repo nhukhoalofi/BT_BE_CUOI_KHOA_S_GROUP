@@ -114,13 +114,12 @@ class SubboardController {
         if (!req.file) {
             return res.status(400).json({ message: "No file uploaded" });
         }
-        // Cập nhật đường dẫn ảnh vào subboard
-        const result = await subboardService.updatesub(req.params.id, { image: req.file.filename });
+        // Upload lên Cloudinary và cập nhật avatarUrl vào subboard
+        const result = await subboardService.uploadimage(req.params.id, req.file.path);
         res.status(200).json({ message: "Image uploaded successfully", data: result });
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+    }
 }
-}
-
 export default new SubboardController();

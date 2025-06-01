@@ -89,29 +89,27 @@ class SubboardService{
         }
     }
     
-    async uploadimage(subboardId){
-        try{
-            const folderPath='./img';
-            const files =fs.readdirSync(folderPath).filter(file=>
-                file.endsWith('.png')||file.endsWith('.jpg')||file.endsWith('.jpeg')
-            )
-            for (const file of files){
-                const filePath=path.join(folderPath,filePath);
-                const uploadResult=await cloudinary.uploader.upload(filePath,{
-                   folder: 'uploaded_images',
-                    resource_type: 'image'
-            });
-
-            const avatarUrl = uploadResult.secure_url;
-            await SubboardModel.findByIdAndUpdate(subboardId, { avatarUrl });
-            console.log(`✅ Upload thành công: ${file}`);
-        }
-
-        return { message: 'Upload completed!' };
-        }
-        catch (error) {
+    async uploadimage(subboardId, imagePath) {
+    try {
+        const result = await cloudinary.uploader.upload(imagePath, {
+            folder: 'profile_images',
+            use_filename: true,
+            unique_filename: false,
+            resource_type: 'image'
+        });
+        const avatarUrl = result.secure_url;
+        const updatedSubboard = await SubboardModel.findByIdAndUpdate(
+            subboardId,
+            { background: avatarUrl },
+            { new: true }
+        );
+        // Xóa file tạm nếu cần
+        // fs.unlinkSync(imagePath);
+        console.log(`✅ Upload thành công: ${imagePath}`);
+        return { message: 'Upload completed!', subboard: updatedSubboard };
+    } catch (error) {
         throw new Error('Error uploading images: ' + error.message);
-        }
-    }   
+    }
+    }
 }
 export default SubboardService;

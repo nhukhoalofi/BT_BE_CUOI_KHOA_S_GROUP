@@ -2,8 +2,9 @@ import CommentModel from "../../model/comment.model.js";
 import TaskModel from "../../model/task.model.js"
 
 class CommentService{
-    async AddComment(userId,taskId,content){
+    async addComment(userId,taskId,content){
         try{
+        console.log('taskId:', taskId);
         const task =await TaskModel.findById(taskId);
         if(!task) throw new Error('Task not found')
         const comment= new CommentModel({
@@ -15,18 +16,18 @@ class CommentService{
         await comment.save();
         return comment;
         }
-        catch(err){
+        catch(error){
             throw new Error('Error adding comment'+error.message); 
         }
     }
-    async getAllComment(TaskId){
+    async getAllComments(TaskId){
         try {
         const comments=await CommentModel.find({task:TaskId}).populate('user', 'name email');
         return comments;    
         }
-        catch(err){
+        catch(error){
             throw new Error('Error get all comment'+error.message);
         }
     }
 }
-export default CommentService;
+export default new CommentService();
