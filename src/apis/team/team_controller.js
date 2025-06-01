@@ -1,5 +1,4 @@
 import TeamService from './team_service.js';
-
 class TeamController {
     async createTeam(req, res) {
         try {
@@ -56,19 +55,18 @@ class TeamController {
         }
     }
     async addMemberToTeam(req, res) {
-        try {
-            const team = await TeamService.addMemberToTeam(req.params.id, req.body.userId);
-            if (!team) {
-                return res.status(404).json({ message: 'Team not found' });
-            }
-            res.status(200).json(team);
-        } catch (error) {
-            res.status(500).json({ message: error.message });
-        }
+    try {
+        const teamId = req.params.id;
+        const userId = req.body.memberId; // hoặc req.body.userId
+        const team = await TeamService.addMemberToTeam(teamId, userId);
+        res.status(200).json({ success: true, data: team });
+    } catch (error) {
+        res.status(400).json({ success: false, message: error.message });
     }
+}
     async removeMemberFromTeam(req, res) {
         try {
-            const team = await TeamService.removeMemberFromTeam(req.params.id, req.body.userId);
+            const team = await TeamService.removeMemberFromTeam(req.params.id, req.body.memberId);
             if (!team) {
                 return res.status(404).json({ message: 'Team not found' });
             }
