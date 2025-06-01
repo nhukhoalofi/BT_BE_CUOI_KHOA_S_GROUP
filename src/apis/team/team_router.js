@@ -1,14 +1,14 @@
 import express from 'express';
 import TeamController from './team_controller.js';
-import { checkRole } from '../../middleware/checkmiddleware.js';
+import checkrole from '../../middleware/checkmiddleware.js';
 
 const Teamrouter = express.Router();
 
-Teamrouter.post('/create', checkRole(['admin']), TeamController.createTeam);
-Teamrouter.get('/getAll', checkRole(['admin', 'member']), TeamController.getAllTeam);
-Teamrouter.get('/getById/:id', checkRole(['admin', 'member']), TeamController.getTeambyId);
-Teamrouter.put('/update/:id', checkRole(['admin']), TeamController.updateTeam);
-Teamrouter.delete('/delete/:id', checkRole(['admin']), TeamController.deleteTeam);
-Teamrouter.post('/addMember/:id', checkRole(['admin']), TeamController.addMemberToTeam);
-Teamrouter.post('/removeMember/:id', checkRole(['admin']), TeamController.removeMemberFromTeam);
+Teamrouter.post('/teams/create', checkrole(['admin']), TeamController.createTeam);
+Teamrouter.get('/teams/getAll', checkrole(['admin', 'member']), TeamController.getAllTeam);
+Teamrouter.get('/teams/getById/:id', checkrole(['admin', 'member']), TeamController.getTeambyId);
+Teamrouter.put('/teams/update/:id', checkrole(['admin']), TeamController.updateTeam);
+Teamrouter.delete('/teams/delete/:id', checkrole(['admin']), TeamController.deleteTeam);
+Teamrouter.post('/teams/addMember/:id', checkrole(['admin']), TeamController.addMemberToTeam);
+Teamrouter.post('/teams/removeMember/:id', checkrole(['admin']), TeamController.removeMemberFromTeam);
 export default Teamrouter;

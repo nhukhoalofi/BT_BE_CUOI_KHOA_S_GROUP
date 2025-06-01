@@ -12,10 +12,10 @@ app.use(express.json());
 
 // Kết nối DB
 connectDB().then(() => {
-  app.use('/team', Teamrouter); 
-  app.use('/task', Taskrouter);
-  app.use('/subboard',Subboardrouter);
-  app.use('/auth', AuthRouter); 
+  app.use('/api', Teamrouter); 
+  app.use('/api', Taskrouter);
+  app.use('/api',Subboardrouter);
+  app.use('/api', AuthRouter); 
   app.use(errorHandler);
   app.listen(port, () => {
     console.log(`Server listening on port ${port}`);

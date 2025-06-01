@@ -6,6 +6,8 @@ const userSchema= new mongoose.Schema({
     role: {type:String, enum:['admin','member'],default:'member'},
     teams: [{type: mongoose.Schema.Types.ObjectId, ref:'Team'}],
     tasks: [{type: mongoose.Schema.Types.ObjectId,ref:'Task'}],
+    resetPasswordToken: String,
+    resetPasswordExpires: Number,
     avatarUrl:{type:String},
     createdAt:{type:String, default:Date.now}
 })

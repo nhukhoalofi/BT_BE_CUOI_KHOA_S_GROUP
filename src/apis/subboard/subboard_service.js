@@ -88,55 +88,7 @@ class SubboardService{
             throw new Error ('Error removing member: '+error.message);
         }
     }
-    async addTask(subboardId,taskId){
-        try {
-        const subboard = await SubboardModel.findByIdAndUpdate(
-            subboardId,
-            { $addToSet: { tasks: taskId } }, // Thêm taskId vào mảng tasks, tránh trùng lặp
-            { new: true }
-        );
-        return subboard;
-    } catch (error) {
-        throw new Error('Error adding task: ' + error.message);
-    }
-    }
-    async removeTask(subboardId, taskId) {
-        try {
-            const subboard = await SubboardModel.findByIdAndUpdate(
-                subboardId,
-                { $pull: { tasks: taskId } },
-                { new: true }
-            );
-            return subboard;
-        } catch (error) {
-            throw new Error('Error removing task: ' + error.message);
-        }
-    }
-    async upadatedeadline(subboardId, deadline) {
-    try {
-        const subboard = await SubboardModel.findByIdAndUpdate(
-            subboardId,
-            { deadline: deadline },
-            { new: true }
-        );
-        return subboard;
-    } catch (error) {
-        throw new Error('Error updating deadline: ' + error.message);
-    }
-}
-
-    async updatepriority(subboardId, priority) {
-    try {
-        const subboard = await SubboardModel.findByIdAndUpdate(
-            subboardId,
-            { priority: priority },
-            { new: true }
-        );
-        return subboard;
-    } catch (error) {
-        throw new Error('Error updating priority: ' + error.message);
-    }
-    }
+    
     async uploadimage(subboardId){
         try{
             const folderPath='./img';
@@ -147,7 +99,7 @@ class SubboardService{
                 const filePath=path.join(folderPath,filePath);
                 const uploadResult=await cloudinary.uploader.upload(filePath,{
                    folder: 'uploaded_images',
-                resource_type: 'image'
+                    resource_type: 'image'
             });
 
             const avatarUrl = uploadResult.secure_url;

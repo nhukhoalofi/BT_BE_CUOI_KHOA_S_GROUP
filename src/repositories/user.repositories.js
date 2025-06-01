@@ -25,6 +25,11 @@ class UserRepository {
       id: String(user._id),
       name: String(user.name),
       email: String(user.email),
+      avatarUrl: String(user.avatarUrl),
+      team: user.team || [],
+      task: user.task || [],
+      role: String(user.role)
+      // Thêm team nếu có
     };
   }
 

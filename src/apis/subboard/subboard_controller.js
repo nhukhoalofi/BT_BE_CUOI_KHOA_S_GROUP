@@ -123,4 +123,4 @@ class SubboardController {
 }
 }
 
-export default SubboardController;
+export default new SubboardController();

@@ -4,6 +4,15 @@ import nodemailer from 'nodemailer';
 import UserRepository from '../../repositories/user.repositories.js';
 import UserModel from '../../model/user.model.js';
 import dotenv from 'dotenv';
+import {v2 as cloudinary} from 'cloudinary'
+import fs from 'fs'
+import jwt from 'jsonwebtoken';
+import path from 'path' 
+cloudinary.config({
+    cloud_name:'dvfhyxnke',
+    api_key:'173672421639628',
+    api_secret:'PHCZEt9JSNrAapRUTwgd5JL89Mg'
+})
 dotenv.config(); // Đảm bảo dotenv được cấu hình để sử dụng biến môi trường
 const userRepo = new UserRepository();
 const transporter = nodemailer.createTransport({
@@ -45,11 +54,16 @@ class AuthService {
       if (!isMatch) {
         throw new Error('Mật khẩu không đúng');
       }
-  
+      const token = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '1d' }
+  );
       return {
         id: user.id,
         name: user.name,
         email: user.email,
+        token
       };
   }
   async forgotPassword(email) {
@@ -90,7 +104,7 @@ class AuthService {
       from: `"Hệ thống" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: 'Mã đặt lại mật khẩu',
-      text: `Sa hay quên ơi, Mã của bạn là: ${token} (hết hạn lúc ${new Date(expiresAt).toLocaleTimeString()})`,
+      text: ` Mã của bạn là: ${token} (hết hạn lúc ${new Date(expiresAt).toLocaleTimeString()})`,
     };
 
     await transporter.sendMail(mailOptions);
@@ -99,11 +113,14 @@ class AuthService {
   async resetPassword(token,newPassword){
     // const user= await userRepo.getOneByResetToken(token);
     const user = await UserModel.findOne({ resetPasswordToken: token });
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    } 
     if (!user||!user.resetPasswordExpires||user.resetPasswordExpires<Date.now()){
       throw new Error ('Token không hợp lệ hoặc hết hạn');
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
-  user.password = hashedPassword;
+    user.password = hashedPassword;
   user.resetPasswordToken = null;
   user.resetPasswordExpires = null;
   await user.save();
@@ -111,6 +128,59 @@ class AuthService {
   return {
     message: 'Đặt lại mật khẩu thành công'
   };
+  }
+  
+  async updatemyuser(userId, updates) {
+    if (updates.password) {
+      const salt = await bcrypt.genSalt(10);
+      updates.password = await bcrypt.hash(updates.password, salt);
+    }
+
+    // Chỉ cập nhật những trường hợp lệ, loại bỏ các trường nhạy cảm (nếu cần)
+    const allowedFields = ['name', 'email', 'password'];
+    const filteredUpdates = {};
+    for (const key of allowedFields) {
+      if (updates[key] !== undefined) {
+        filteredUpdates[key] = updates[key];
+      }
+    }
+
+    const updatedUser = await UserModel.findByIdAndUpdate(
+      userId,
+      { $set: filteredUpdates },
+      { new: true, select: '-password' }
+    );
+    return updatedUser;
+  }
+  async updateimageprofile(userId, imagePath) {
+    try {
+      const result = await cloudinary.uploader.upload(imagePath, {
+        folder: 'profile_images',
+        use_filename: true,
+        unique_filename: false,
+      });
+
+      const updatedUser = await UserModel.findByIdAndUpdate(
+        userId,
+        { avatarUrl: result.secure_url },
+        { new: true, select: '-password' }
+      );
+
+      // Xóa tệp tạm thời sau khi upload lên Cloudinary
+      fs.unlinkSync(imagePath);
+
+      return updatedUser;
+    } catch (error) {
+      console.error('Error updating profile image:', error);
+      throw new Error('Không thể cập nhật ảnh đại diện');
+    }
+  }
+  async getuserbyid(userId) {
+    const user = await userRepo.getOneById(userId);
+    if (!user) {
+      throw new Error('Người dùng không tồn tại');
+    }
+    return user;
   }
 }
 
