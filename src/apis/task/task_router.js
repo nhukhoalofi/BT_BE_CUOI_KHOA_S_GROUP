@@ -9,5 +9,6 @@ Taskrouter.get('/tasks/getAll', checkrole(['admin']), TaskController.getAllTask)
 Taskrouter.get('/tasks/getById/:id', checkrole(['admin', 'member']), TaskController.getTaskbyId);
 Taskrouter.put('/tasks/update/:id', checkrole(['admin']), TaskController.updateTask);
 Taskrouter.delete('/tasks/delete/:id', checkrole(['admin']), TaskController.deleteTask);
+Taskrouter.get('/tasks/getallTasksbytagging/:tagging', checkrole(['admin', 'member']), TaskController.getAllTasksbytagging);
 export default Taskrouter;
 

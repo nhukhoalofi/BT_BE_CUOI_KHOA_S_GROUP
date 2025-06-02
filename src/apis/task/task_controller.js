@@ -55,6 +55,17 @@ class TaskController {
             res.status(500).json({ message: error.message });
         }
     }
+    async getAllTasksbytagging(req,res){
+        try {
+            const tasks = await TaskService.getAllTasksbytagging(req.params.tagging);
+            if (!tasks || tasks.length === 0) {
+                return res.status(404).json({ message: 'No tasks found for this tagging' });
+            }
+            res.status(200).json(tasks);
+        } catch (error) {
+            res.status(500).json({ message: error.message });
+        }
+    }
 }
 
 export default new TaskController();

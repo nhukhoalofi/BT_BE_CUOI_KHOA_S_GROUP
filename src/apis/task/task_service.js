@@ -47,5 +47,13 @@ class TaskService{
             throw new Error("Error deleting task: " + error.message);
         }
     }
+    async getAllTasksbytagging(tagging) {
+        try {
+            const tasks = await TaskModel.find({ tags: { $in: [tagging] } });
+            return tasks;
+        } catch (error) {
+            throw new Error("Error fetching tasks by tagging: " + error.message);
+        }
+    }
 }
 export default new TaskService();
